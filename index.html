@@ -1,1 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Asistencia – Parroquia Santa Teresa de Calcuta</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --secondary: #0d9488;
+      --light: #f8fafc;
+      --dark: #1e293b;
+      --success: #16a34a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background-color: var(--light); color: var(--dark); padding: 16px; max-width: 800px; margin: 0 auto; }
+    header { background: var(--primary); color: white; padding: 16px; text-align: center; border-radius: 0 0 12px 12px; margin-bottom: 20px; position: relative; }
+    .lang-switcher { position: absolute; top: 12px; right: 16px; display: flex; gap: 8px; }
+    .lang-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    .lang-btn.active { background: white; color: var(--primary); font-weight: bold; }
+    nav { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    button { padding: 10px 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; }
+    .btn-tab { background: #e2e8f0; }
+    .btn-tab.active { background: var(--primary); color: white; }
+    .view { display: none; }
+    .view.active { display: block; }
+    input, select, button { width: 100%; margin: 8px 0; padding: 10px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+    #reader { width: 100%; margin: 16px 0; max-width: 300px; margin-left: auto; margin-right: auto; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .actions button { flex: 1; min-width: 110px; }
+    .card { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin: 16px 0; }
+    .qr-display { text-align: center; margin: 16px 0; padding: 12px; background: #f1f5f9; border-radius: 8px; font-family: monospace; font-size: 1.1rem; }
+    footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 0.85rem; line-height: 1.4; }
+    .highlight { background-color: #dbeafe; padding: 2px 6px; border-radius: 4px; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; color: white; }
+    .badge-comunion { background-color: #3b82f6; }
+    .badge-confirm-jov { background-color: #8b5cf6; }
+    .badge-confirm-adu { background-color: #ec4899; }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="lang-switcher">
+      <button class="lang-btn active" data-lang="es">ES</button>
+      <button class="lang-btn" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="qu">QU</button>
+    </div>
+    <h1 id="title">Asistencia – Parroquia Santa Teresa de Calcuta</h1>
+    <p id="subtitle">Sistema para catequesis y sacramentos</p>
+  </header>
 
+  <nav>
+    <button class="btn-tab active" data-view="registro" id="tab-registro">📝 Registro</button>
+    <button class="btn-tab" data-view="asistencia" id="tab-asistencia">📱 Asistencia</button>
+    <button class="btn-tab" data-view="reportes" id="tab-reportes">📊 Reportes</button>
+  </nav>
+
+  <!-- REGISTRO -->
+  <div id="registro" class="view active">
+    <div class="card">
+      <h2 id="reg-title">Registrar Catequizando</h2>
+      <input type="text" id="nombre" placeholder="Nombre completo" />
+      <input type="number" id="edad" placeholder="Edad (7 a 100)" min="7" max="100" onchange="actualizarCategoria()" />
+      <div id="categoria-auto" style="text-align: center; margin: 8px 0; font-weight: bold;"></div>
+      <input type="text" id="centro" placeholder="Centro educativo o parroquia" />
+      <select id="sacramento">
+        <option value="" id="sacramento-placeholder">Condición sacramental</option>
+        <option value="Bautizado" id="sac-baut">Bautizado</option>
+        <option value="Eucaristía" id="sac-euc">Eucaristía</option>
+        <option value="Confirmado" id="sac-conf">Confirmado</option>
+        <option value="No bautizado" id="sac-no-baut">No bautizado</option>
+      </select>
+      <input type="text" id="apoderado" placeholder="Nombre del apoderado o padre/madre" />
+      <input type="text" id="dni_apoderado" placeholder="DNI del apoderado (opcional)" />
+      <div class="grid">
+        <input type="text" id="telefono" placeholder="Teléfono de contacto" />
+        <input type="email" id="email" placeholder="Correo (opcional)" />
+      </div>
+      <button onclick="registrar()" style="background: var(--success); color: white;" id="btn-registrar">✅ Registrar Catequizando</button>
+      
+      <div id="qr-output" class="qr-display" style="display: none;"></div>
+      <button id="btn-imprimir-qr" onclick="imprimirTarjetaQR()" style="display: none; margin-top: 12px; background: var(--secondary); color: white;" id="btn-print-qr">
+        🖨️ Imprimir Tarjeta QR
+      </button>
+    </div>
+    
+    <div class="card" style="font-size: 0.9rem; color: #475569;" id="privacy-note">
+      <strong>🔒 Privacidad:</strong> Los datos se usan solo para fines pastorales. 
+      Se guardan en este dispositivo y no se comparten con nadie.
+    </div>
+  </div>
+
+  <!-- ASISTENCIA -->
+  <div id="asistencia" class="view">
+    <div class="card">
+      <h2 id="asist-title">Registrar Asistencia</h2>
+      <p id="asist-instr" style="margin-bottom: 16px; color: #475569;">
+        Escanea el <span class="highlight">QR del catequizando</span> o el 
+        <span class="highlight">código de barras del DNI</span>.
+      </p>
+      <div id="reader"></div>
+      <button onclick="iniciarLector()" style="background: var(--primary); color: white;" id="btn-start-camera">📱 Iniciar Cámara</button>
+    </div>
+  </div>
+
+  <!-- REPORTES -->
+  <div id="reportes" class="view">
+    <div class="card">
+      <h2 id="report-title">Reporte de Asistencia</h2>
+      <div id="tabla-reportes">
+        <p id="loading-msg">Cargando registros...</p>
+      </div>
+      <div class="actions">
+        <button onclick="generarPDF()" style="background: #dc2626; color: white;" id="btn-pdf">📄 PDF</button>
+        <button onclick="window.print()" style="background: #4b5563; color: white;" id="btn-print">🖨️ Imprimir</button>
+        <button onclick="enviarWhatsApp()" style="background: #10b981; color: white;" id="btn-whatsapp">💬 WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <footer id="footer-text">
+    Sistema gratuito para uso pastoral • Código abierto • 
+    Desarrollado con amor al servicio de la Iglesia
+  </footer>
+
+  <script>
+    // === TRADUCCIONES ===
+    const translations = {
+      es: {
+        title: "Asistencia – Parroquia Santa Teresa de Calcuta",
+        subtitle: "Sistema para catequesis y sacramentos",
+        tab_registro: "📝 Registro",
+        tab_asistencia: "📱 Asistencia",
+        tab_reportes: "📊 Reportes",
+        reg_title: "Registrar Catequizando",
+        nombre_ph: "Nombre completo",
+        edad_ph: "Edad (7 a 100)",
+        centro_ph: "Centro educativo o parroquia",
+        sacramento_ph: "Condición sacramental",
+        sac_baut: "Bautizado",
+        sac_euc: "Eucaristía",
+        sac_conf: "Confirmado",
+        sac_no_baut: "No bautizado",
+        apoderado_ph: "Nombre del apoderado o padre/madre",
+        dni_apoderado_ph: "DNI del apoderado (opcional)",
+        telefono_ph: "Teléfono de contacto",
+        email_ph: "Correo (opcional)",
+        btn_registrar: "✅ Registrar Catequizando",
+        btn_print_qr: "🖨️ Imprimir Tarjeta QR",
+        asist_title: "Registrar Asistencia",
+        asist_instr: "Escanea el <span class=\"highlight\">QR del catequizando</span> o el <span class=\"highlight\">código de barras del DNI</span>.",
+        btn_start_camera: "📱 Iniciar Cámara",
+        report_title: "Reporte de Asistencia",
+        loading_msg: "Cargando registros...",
+        btn_pdf: "📄 PDF",
+        btn_print: "🖨️ Imprimir",
+        btn_whatsapp: "💬 WhatsApp",
+        privacy_note: "<strong>🔒 Privacidad:</strong> Los datos se usan solo para fines pastorales. Se guardan en este dispositivo y no se comparten con nadie.",
+        footer: "Sistema gratuito para uso pastoral • Código abierto • Desarrollado con amor al servicio de la Iglesia",
+        alert_nombre: "Por favor, ingresa el nombre.",
+        alert_edad: "Edad inválida. Debe ser entre 7 y 100 años.",
+        alert_reg_ok: "✅ Registrado en: {categoria}\nCódigo: {codigo}",
+        alert_asist_ok: "✔️ Asistencia registrada\nCódigo: {codigo}\n{fecha}",
+        alert_camara: "No se pudo acceder a la cámara. Verifica permisos.",
+        report_total: "Total: {count} asistencias",
+        no_asistencias: "No hay registros de asistencia aún.",
+        whatsapp_msg: "✅ *Reporte de Asistencia*\n\nParroquia: {parroquia}\nTotal de asistencias: {count}\n\nGenerado desde AsistenciaPastoral (sistema gratuito para parroquias)"
+      },
+      en: {
+        title: "Attendance – St. Teresa of Calcutta Parish",
+        subtitle: "System for catechesis and sacraments",
+        tab_registro: "📝 Registration",
+        tab_asistencia: "📱 Attendance",
+        tab_reportes: "📊 Reports",
+        reg_title: "Register Catechumen",
+        nombre_ph: "Full name",
+        edad_ph: "Age (7 to 100)",
+        centro_ph: "School or parish",
+        sacramento_ph: "Sacramental status",
+        sac_baut: "Baptized",
+        sac_euc: "Eucharist",
+        sac_conf: "Confirmed",
+        sac_no_baut: "Not baptized",
+        apoderado_ph: "Parent or guardian name",
+        dni_apoderado_ph: "Guardian ID (optional)",
+        telefono_ph: "Contact phone",
+        email_ph: "Email (optional)",
+        btn_registrar: "✅ Register Catechumen",
+        btn_print_qr: "🖨️ Print QR Card",
+        asist_title: "Record Attendance",
+        asist_instr: "Scan the catechumen's <span class=\"highlight\">QR code</span> or the <span class=\"highlight\">ID barcode</span>.",
+        btn_start_camera: "📱 Start Camera",
+        report_title: "Attendance Report",
+        loading_msg: "Loading records...",
+        btn_pdf: "📄 PDF",
+        btn_print: "🖨️ Print",
+        btn_whatsapp: "💬 WhatsApp",
+        privacy_note: "<strong>🔒 Privacy:</strong> Data is used only for pastoral purposes. It is stored on this device and not shared with anyone.",
+        footer: "Free system for pastoral use • Open source • Developed with love to serve the Church",
+        alert_nombre: "Please enter the name.",
+        alert_edad: "Invalid age. Must be between 7 and 100 years.",
+        alert_reg_ok: "✅ Registered in: {categoria}\nCode: {codigo}",
+        alert_asist_ok: "✔️ Attendance recorded\nCode: {codigo}\n{fecha}",
+        alert_camara: "Could not access camera. Check permissions.",
+        report_total: "Total: {count} attendances",
+        no_asistencias: "No attendance records yet.",
+        whatsapp_msg: "✅ *Attendance Report*\n\nParish: {parroquia}\nTotal attendances: {count}\n\nGenerated from AsistenciaPastoral (free system for parishes)"
+      },
+      qu: {
+        title: "Asistencia – Santa Teresa de Calcuta Parroquia",
+        subtitle: "Katekistaqtaqwan sakramentoktaqwan ruraypaq sistema",
+        tab_registro: "📝 Willayta qillqay",
+        tab_asistencia: "📱 Asistencia qillqay",
+        tab_reportes: "📊 Willaykuna",
+        reg_title: "Katekista qillqay",
+        nombre_ph: "Suti sutichay",
+        edad_ph: "Wata (7-100)",
+        centro_ph: "Yachay wasi icha parroquia",
+        sacramento_ph: "Sakramento kachun",
+        sac_baut: "Bautizadu",
+        sac_euc: "Eukaristía",
+        sac_conf: "Confirmadu",
+        sac_no_baut: "Mana bautizadu",
+        apoderado_ph: "Tayta icha mama suti",
+        dni_apoderado_ph: "DNI (mana ruranapaq)",
+        telefono_ph: "Rimanakuy teléfono",
+        email_ph: "Email (mana ruranapaq)",
+        btn_registrar: "✅ Katekista qillqay",
+        btn_print_qr: "🖨️ QR qillqa chayamuy",
+        asist_title: "Asistencia qillqay",
+        asist_instr: "<span class=\"highlight\">Katekista QR qillqata</span> icha <span class=\"highlight\">DNI qillqata</span> chaskiy.",
+        btn_start_camera: "📱 Cámara qallariy",
+        report_title: "Asistencia willay",
+        loading_msg: "Willaykunata llamk'achkanki...",
+        btn_pdf: "📄 PDF",
+        btn_print: "🖨️ Chayamuy",
+        btn_whatsapp: "💬 WhatsApp",
+        privacy_note: "<strong>🔒 Privacidad:</strong> Kunan willaykuna katekista ruraypaqlla. Kunan qillqata kay qillqatapi qillqasqa, mana pipaswan rurasqa.",
+        footer: "Mana qullqiyuq ruray katekista ruraypaq • Qillqa q'ataw • Iglesia ruraypaq munaywan rurasqa",
+        alert_nombre: "Allichu, sutita qillqay.",
+        alert_edad: "Wata manan allinchu. 7-100 watapura kachun.",
+        alert_reg_ok: "✅ {categoria}pi qillqasqa\nQillqa: {codigo}",
+        alert_asist_ok: "✔️ Asistencia qillqasqa\nQillqa: {codigo}\n{fecha}",
+        alert_camara: "Cámara manan llamk'achkachu. Permisu kamariy.",
+        report_total: "Hunt'a: {count} asistencias",
+        no_asistencias: "Asistencia willay manam kanchu.",
+        whatsapp_msg: "✅ *Asistencia Willay*\n\nParroquia: {parroquia}\nHunt'a asistencias: {count}\n\nAsistenciaPastoral-manta (parrokiakunapaq mana qullqiyuq sistema)"
+      }
+    };
+
+    // === Categorías por idioma ===
+    const categorias = {
+      es: {
+        comunion: "Primera Comunión",
+        confirm_jov: "Confirmación (Jóvenes)",
+        confirm_adu: "Confirmación (Adultos)"
+      },
+      en: {
+        comunion: "First Communion",
+        confirm_jov: "Confirmation (Youth)",
+        confirm_adu: "Confirmation (Adults)"
+      },
+      qu: {
+        comunion: "Ñawpaq Komunión",
+        confirm_jov: "Confirmación (Warmikuna)",
+        confirm_adu: "Confirmación (Hatun runakuna)"
+      }
+    };
+
+    // === Estado ===
+    let currentLang = 'es';
+    let participantes = JSON.parse(localStorage.getItem('participantes') || '[]');
+    let asistencias = JSON.parse(localStorage.getItem('asistencias') || '[]');
+    let html5QrCode = null;
+
+    // === Traducir interfaz ===
+    function translate(lang) {
+      currentLang = lang;
+      
+      // Actualizar textos
+      document.getElementById('title').innerText = translations[lang].title;
+      document.getElementById('subtitle').innerText = translations[lang].subtitle;
+      document.getElementById('tab-registro').innerText = translations[lang].tab_registro;
+      document.getElementById('tab-asistencia').innerText = translations[lang].tab_asistencia;
+      document.getElementById('tab-reportes').innerText = translations[lang].tab_reportes;
+      document.getElementById('reg-title').innerText = translations[lang].reg_title;
+      document.getElementById('nombre').placeholder = translations[lang].nombre_ph;
+      document.getElementById('edad').placeholder = translations[lang].edad_ph;
+      document.getElementById('centro').placeholder = translations[lang].centro_ph;
+      document.getElementById('sacramento-placeholder').innerText = translations[lang].sacramento_ph;
+      document.getElementById('sac-baut').innerText = translations[lang].sac_baut;
+      document.getElementById('sac-euc').innerText = translations[lang].sac_euc;
+      document.getElementById('sac-conf').innerText = translations[lang].sac_conf;
+      document.getElementById('sac-no-baut').innerText = translations[lang].sac_no_baut;
+      document.getElementById('apoderado').placeholder = translations[lang].apoderado_ph;
+      document.getElementById('dni_apoderado').placeholder = translations[lang].dni_apoderado_ph;
+      document.getElementById('telefono').placeholder = translations[lang].telefono_ph;
+      document.getElementById('email').placeholder = translations[lang].email_ph;
+      document.getElementById('btn-registrar').innerText = translations[lang].btn_registrar;
+      document.getElementById('btn-print-qr').innerText = translations[lang].btn_print_qr;
+      document.getElementById('asist-title').innerText = translations[lang].asist_title;
+      document.getElementById('asist-instr').innerHTML = translations[lang].asist_instr;
+      document.getElementById('btn-start-camera').innerText = translations[lang].btn_start_camera;
+      document.getElementById('report-title').innerText = translations[lang].report_title;
+      document.getElementById('loading-msg').innerText = translations[lang].loading_msg;
+      document.getElementById('btn-pdf').innerText = translations[lang].btn_pdf;
+      document.getElementById('btn-print').innerText = translations[lang].btn_print;
+      document.getElementById('btn-whatsapp').innerText = translations[lang].btn_whatsapp;
+      document.getElementById('privacy-note').innerHTML = translations[lang].privacy_note;
+      document.getElementById('footer-text').innerText = translations[lang].footer;
+      
+      // Actualizar botones de idioma
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+      
+      // Actualizar categoría si hay edad
+      const edadInput = document.getElementById('edad');
+      if (edadInput.value) {
+        actualizarCategoria();
+      }
+      
+      // Recargar reportes si están visibles
+      if (document.getElementById('reportes').classList.contains('active')) {
+        cargarReportes();
+      }
+    }
+
+    // === Cambiar idioma ===
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        translate(btn.dataset.lang);
+      });
+    });
+
+    // === Categoría según edad ===
+    function obtenerCategoria(edad) {
+      if (edad >= 7 && edad <= 12) return 'comunion';
+      if (edad >= 13 && edad <= 17) return 'confirm_jov';
+      if (edad >= 18) return 'confirm_adu';
+      return null;
+    }
+
+    function actualizarCategoria() {
+      const edad = parseInt(document.getElementById('edad').value);
+      const contenedor = document.getElementById('categoria-auto');
+      if (edad >= 7 && edad <= 100) {
+        const catKey = obtenerCategoria(edad);
+        if (catKey) {
+          const catName = categorias[currentLang][catKey];
+          const badgeClass = 
+            catKey === 'comunion' ? 'badge-comunion' : 
+            catKey === 'confirm_jov' ? 'badge-confirm-jov' : 'badge-confirm-adu';
+          contenedor.innerHTML = `Categoría: <span class="badge ${badgeClass}">${catName}</span>`;
+        } else {
+          contenedor.innerHTML = '';
+        }
+      } else {
+        contenedor.innerHTML = '';
+      }
+    }
+
+    // === Gestión de vistas ===
+    document.querySelectorAll('.btn-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        btn.classList.add('active');
+        const viewId = btn.dataset.view;
+        document.getElementById(viewId).classList.add('active');
+        if (viewId === 'reportes') cargarReportes();
+      });
+    });
+
+    // === Guardar datos ===
+    function guardar() {
+      localStorage.setItem('participantes', JSON.stringify(participantes));
+      localStorage.setItem('asistencias', JSON.stringify(asistencias));
+    }
+
+    // === Registro ===
+    function registrar() {
+      const nombre = document.getElementById('nombre').value.trim();
+      const edad = parseInt(document.getElementById('edad').value);
+      
+      if (!nombre) { alert(translations[currentLang].alert_nombre); return; }
+      if (!edad || edad < 7 || edad > 100) { alert(translations[currentLang].alert_edad); return; }
+      
+      const catKey = obtenerCategoria(edad);
+      const categoria = categorias[currentLang][catKey];
+      const id = Date.now();
+      const nuevo = {
+        id,
+        nombre,
+        edad,
+        categoria_key: catKey, // para mantener consistencia
+        categoria: categoria,
+        centro: document.getElementById('centro').value || null,
+        sacramento: document.getElementById('sacramento').value || null,
+        apoderado: document.getElementById('apoderado').value || null,
+        dni_apoderado: document.getElementById('dni_apoderado').value || null,
+        telefono: document.getElementById('telefono').value || null,
+        email: document.getElementById('email').value || null,
+        fecha_registro: new Date().toLocaleString()
+      };
+      
+      participantes.push(nuevo);
+      guardar();
+      
+      const qrText = `PAST-${id}`;
+      const qrEl = document.getElementById('qr-output');
+      qrEl.innerText = qrText;
+      qrEl.style.display = 'block';
+      document.getElementById('btn-imprimir-qr').style.display = 'block';
+      
+      window.ultimoQR = {
+        codigo: qrText,
+        nombre: nombre,
+        categoria: categoria,
+        parroquia: translations[currentLang].title.split(' – ')[1] || 'Parroquia'
+      };
+      
+      // Limpiar
+      document.getElementById('nombre').value = '';
+      document.getElementById('edad').value = '';
+      document.getElementById('centro').value = '';
+      document.getElementById('sacramento').value = '';
+      document.getElementById('apoderado').value = '';
+      document.getElementById('dni_apoderado').value = '';
+      document.getElementById('telefono').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('categoria-auto').innerHTML = '';
+      
+      alert(translations[currentLang].alert_reg_ok
+        .replace('{categoria}', categoria)
+        .replace('{codigo}', qrText));
+    }
+
+    // === Imprimir Tarjeta QR ===
+    function imprimirTarjetaQR() {
+      if (!window.ultimoQR) return;
+      
+      // Determinar idioma para la tarjeta
+      const lang = currentLang;
+      const parishLabel = lang === 'qu' ? 'Parroquia' : (lang === 'en' ? 'Parish' : 'Parroquia');
+      
+      const printContent = `
+        <html>
+        <head>
+          <title>QR Card</title>
+          <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+            .card { max-width: 300px; margin: 0 auto; border: 2px solid #1e3a8a; border-radius: 12px; padding: 20px; }
+            .qr { font-size: 24px; font-weight: bold; margin: 15px 0; font-family: monospace; }
+            .name { font-size: 18px; margin: 10px 0; }
+            .category { background: #dbeafe; padding: 4px 10px; border-radius: 20px; font-size: 14px; margin: 8px 0; }
+            .parish { color: #1e3a8a; font-weight: bold; margin-top: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <div class="parish">${parishLabel}: ${window.ultimoQR.parroquia}</div>
+            <div class="name">${window.ultimoQR.nombre}</div>
+            <div class="category">${window.ultimoQR.categoria}</div>
+            <div class="qr">${window.ultimoQR.codigo}</div>
+            <p>${lang === 'qu' ? 'Kay qillqata kada katekistapi chaskiy.' : (lang === 'en' ? 'Present this code at each catechesis.' : 'Presenta este código en cada catequesis')}</p>
+          </div>
+        </body>
+        </html>
+      `;
+      
+      const win = window.open('', '', 'width=400,height=500');
+      win.document.write(printContent);
+      win.document.close();
+      win.focus();
+      win.print();
+      win.close();
+    }
+
+    // === Lector QR ===
+    function iniciarLector() {
+      if (html5QrCode) {
+        alert("El lector ya está activo.");
+        return;
+      }
+      
+      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+      html5QrCode = new Html5Qrcode("reader");
+      
+      html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText) => {
+          html5QrCode.stop().then(() => {
+            html5QrCode.clear();
+            html5QrCode = null;
+            document.getElementById('reader').innerHTML = '';
+          });
+          
+          const fecha = new Date().toLocaleString();
+          asistencias.push({ codigo: decodedText, fecha });
+          guardar();
+          alert(translations[currentLang].alert_asist_ok
+            .replace('{codigo}', decodedText)
+            .replace('{fecha}', fecha));
+        },
+        (errorMessage) => {}
+      ).catch(err => {
+        console.error("Error al iniciar cámara:", err);
+        alert(translations[currentLang].alert_camara);
+        html5QrCode = null;
+      });
+    }
+
+    // === Reportes ===
+    function cargarReportes() {
+      const container = document.getElementById('tabla-reportes');
+      
+      if (asistencias.length === 0) {
+        container.innerHTML = `<p style="text-align: center; color: #64748b;">${translations[currentLang].no_asistencias}</p>`;
+        return;
+      }
+      
+      const registros = asistencias.map(a => {
+        const part = participantes.find(p => `PAST-${p.id}` === a.codigo);
+        return {
+          codigo: a.codigo,
+          nombre: part ? part.nombre : 'Desconocido',
+          categoria: part ? part.categoria : '',
+          categoria_key: part ? part.categoria_key : '',
+          fecha: a.fecha
+        };
+      }).slice(-50).reverse();
+      
+      let html = `<p style="text-align: center; margin-bottom: 12px;"><strong>${translations[currentLang].report_total.replace('{count}', asistencias.length)}</strong></p>`;
+      html += `<table><thead><tr><th>${currentLang === 'qu' ? 'Suti' : (currentLang === 'en' ? 'Name' : 'Nombre')}</th><th>${currentLang === 'qu' ? 'Categoría' : (currentLang === 'en' ? 'Category' : 'Categoría')}</th><th>${currentLang === 'qu' ? 'Pacha' : (currentLang === 'en' ? 'Date' : 'Fecha')}</th></tr></thead><tbody>`;
+      
+      registros.forEach(r => {
+        const badgeClass = 
+          r.categoria_key === 'comunion' ? 'badge-comunion' : 
+          r.categoria_key === 'confirm_jov' ? 'badge-confirm-jov' : 'badge-confirm-adu';
+        html += `
+          <tr>
+            <td>${r.nombre}</td>
+            <td><span class="badge ${badgeClass}">${r.categoria || '–'}</span></td>
+            <td>${r.fecha}</td>
+          </tr>`;
+      });
+      html += `</tbody></table>`;
+      
+      container.innerHTML = html;
+    }
+
+    function generarPDF() {
+      if (asistencias.length === 0) {
+        alert("No hay datos para generar el reporte.");
+        return;
+      }
+      
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      doc.setFontSize(18);
+      doc.text(currentLang === 'qu' ? 'Asistencia Willay' : (currentLang === 'en' ? 'Attendance Report' : 'Reporte de Asistencia'), 20, 20);
+      doc.setFontSize(12);
+      const parishName = translations[currentLang].title.split(' – ')[1] || 'Parroquia';
+      doc.text(parishName, 20, 28);
+      doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 20, 36);
+      doc.text(`Total: ${asistencias.length}`, 20, 44);
+      
+      doc.line(20, 50, 190, 50);
+      
+      let y = 60;
+      doc.setFontSize(10);
+      doc.text(currentLang === 'qu' ? 'SUTI' : (currentLang === 'en' ? 'NAME' : 'NOMBRE'), 20, y);
+      doc.text(currentLang === 'qu' ? 'CATEGORÍA' : (currentLang === 'en' ? 'CATEGORY' : 'CATEGORÍA'), 80, y);
+      doc.text(currentLang === 'qu' ? 'PACHA' : (currentLang === 'en' ? 'DATE' : 'FECHA'), 140, y);
+      y += 8;
+      
+      const registros = asistencias.map(a => {
+        const part = participantes.find(p => `PAST-${p.id}` === a.codigo);
+        return {
+          nombre: part ? part.nombre : 'Desconocido',
+          categoria: part ? part.categoria : '–',
+          fecha: a.fecha
+        };
+      }).slice(-100).reverse();
+      
+      registros.forEach(r => {
+        if (y > 280) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(r.nombre.substring(0, 25), 20, y);
+        doc.text(r.categoria.substring(0, 20), 80, y);
+        doc.text(r.fecha.substring(0, 18), 140, y);
+        y += 6;
+      });
+      
+      doc.save(`asistencia-${parishName.replace(/\s+/g, '-')}.pdf`);
+    }
+
+    function enviarWhatsApp() {
+      if (asistencias.length === 0) {
+        alert("No hay registros para enviar.");
+        return;
+      }
+      
+      const parishName = translations[currentLang].title.split(' – ')[1] || 'Parroquia';
+      const texto = translations[currentLang].whatsapp_msg
+        .replace('{parroquia}', parishName)
+        .replace('{count}', asistencias.length);
+      const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+      window.open(url, '_blank');
+    }
+
+    // === Inicializar ===
+    translate('es');
+  </script>
+</body>
+</html>
