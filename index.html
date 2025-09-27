@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SIST CRISTHUS Version 1.0</title>
+  <title>SIST CRISTHUS Version 1.1</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     :root {
       --primary: #1e3a8a;
@@ -55,6 +55,7 @@
     .qr-image { margin: 10px 0; }
     .qr-name { font-weight: bold; margin: 5px 0; }
     .qr-photo { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; margin: 5px 0; }
+    .error-message { color: red; font-size: 0.9rem; margin: 5px 0; }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC&display=swap" rel="stylesheet">
 </head>
@@ -66,7 +67,7 @@
       <button class="lang-btn" data-lang="qu">QU</button>
     </div>
     <div id="header-title">
-      <h1 id="title">SIST CRISTHUS Version 1.0</h1>
+      <h1 id="title">SIST CRISTHUS Version 1.1</h1>
       <p id="subtitle">Sistema para catequesis y sacramentos - Parroquia Santa Teresa de Calcuta</p>
     </div>
     <div id="user-status" class="user-info" style="display: none;">
@@ -121,9 +122,11 @@
         <option value="No bautizado">No bautizado</option>
       </select>
       <input type="text" id="apoderado" placeholder="Nombre del apoderado o padre/madre" />
-      <input type="text" id="dni_apoderado" placeholder="DNI del apoderado (opcional)" />
+      <input type="text" id="dni_apoderado" placeholder="DNI del apoderado (8 dígitos)" oninput="validarDNI(this)" />
+      <div id="dni-error" class="error-message" style="display: none;"></div>
       <div class="grid">
-        <input type="text" id="telefono" placeholder="Teléfono de contacto" />
+        <input type="text" id="telefono" placeholder="Teléfono (9 dígitos, empieza con 9)" oninput="validarTelefono(this)" />
+        <div id="telefono-error" class="error-message" style="display: none;"></div>
         <input type="email" id="email" placeholder="Correo (opcional)" />
       </div>
       <input type="file" id="foto" accept="image/*" />
@@ -198,7 +201,7 @@
     // === TRADUCCIONES COMPLETAS ===
     const translations = {
       es: {
-        title: "SIST CRISTHUS Version 1.0",
+        title: "SIST CRISTHUS Version 1.1",
         subtitle: "Sistema para catequesis y sacramentos - Parroquia Santa Teresa de Calcuta",
         tab_registro: "📝 Registro",
         tab_asistencia: "📱 Asistencia",
@@ -226,8 +229,8 @@
         sac_conf: "Confirmado",
         sac_no_baut: "No bautizado",
         apoderado_ph: "Nombre del apoderado o padre/madre",
-        dni_apoderado_ph: "DNI del apoderado (opcional)",
-        telefono_ph: "Teléfono de contacto",
+        dni_apoderado_ph: "DNI del apoderado (8 dígitos)",
+        telefono_ph: "Teléfono (9 dígitos, empieza con 9)",
         email_ph: "Correo (opcional)",
         btn_registrar: "✅ Registrar Catequizando",
         btn_print_qr: "🖨️ Imprimir Tarjeta QR",
@@ -243,6 +246,8 @@
         footer: "Sistema gratuito para uso pastoral • Código abierto • Desarrollado con amor al servicio de la Iglesia",
         alert_nombre: "Por favor, ingresa el nombre.",
         alert_edad: "Edad inválida. Debe ser entre 7 y 70 años.",
+        alert_dni: "El DNI debe tener 8 dígitos numéricos.",
+        alert_telefono: "El teléfono debe tener 9 dígitos y empezar con 9.",
         alert_reg_ok: "✅ Registrado en: {categoria}\nCódigo: {codigo}",
         alert_asist_ok: "✔️ Asistencia registrada\nCódigo: {codigo}\n{fecha}",
         alert_camara: "No se pudo acceder a la cámara. Verifica permisos.",
@@ -266,7 +271,7 @@
         centro_otros_ph: "Especifique la institución"
       },
       en: {
-        title: "SIST CRISTHUS Version 1.0",
+        title: "SIST CRISTHUS Version 1.1",
         subtitle: "System for catechesis and sacraments - St. Teresa of Calcuta Parish",
         tab_registro: "📝 Registration",
         tab_asistencia: "📱 Attendance",
@@ -294,8 +299,8 @@
         sac_conf: "Confirmed",
         sac_no_baut: "Not baptized",
         apoderado_ph: "Parent or guardian name",
-        dni_apoderado_ph: "Guardian ID (optional)",
-        telefono_ph: "Contact phone",
+        dni_apoderado_ph: "Guardian ID (8 digits)",
+        telefono_ph: "Phone (9 digits, starts with 9)",
         email_ph: "Email (optional)",
         btn_registrar: "✅ Register Catechumen",
         btn_print_qr: "🖨️ Print QR Card",
@@ -311,6 +316,8 @@
         footer: "Free system for pastoral use • Open source • Developed with love to serve the Church",
         alert_nombre: "Please enter the name.",
         alert_edad: "Invalid age. Must be between 7 and 70 years.",
+        alert_dni: "DNI must be 8 numeric digits.",
+        alert_telefono: "Phone must be 9 digits and start with 9.",
         alert_reg_ok: "✅ Registered in: {categoria}\nCode: {codigo}",
         alert_asist_ok: "✔️ Attendance recorded\nCode: {codigo}\n{fecha}",
         alert_camara: "Could not access camera. Check permissions.",
@@ -334,7 +341,7 @@
         centro_otros_ph: "Specify institution"
       },
       qu: {
-        title: "SIST CRISTHUS Version 1.0",
+        title: "SIST CRISTHUS Version 1.1",
         subtitle: "Katekistaqtaqwan sakramentoktaqwan ruraypaq sistema - Santa Teresa de Calcuta Parroquia",
         tab_registro: "📝 Willayta qillqay",
         tab_asistencia: "📱 Asistencia qillqay",
@@ -362,8 +369,8 @@
         sac_conf: "Confirmadu",
         sac_no_baut: "Mana bautizadu",
         apoderado_ph: "Tayta icha mama suti",
-        dni_apoderado_ph: "DNI (mana ruranapaq)",
-        telefono_ph: "Rimanakuy teléfono",
+        dni_apoderado_ph: "DNI (8 wata)",
+        telefono_ph: "Rimanakuy teléfono (9 wata, 9-manta qallariy)",
         email_ph: "Email (mana ruranapaq)",
         btn_registrar: "✅ Katekista qillqay",
         btn_print_qr: "🖨️ QR qillqa chayamuy",
@@ -379,6 +386,8 @@
         footer: "Mana qullqiyuq ruray katekista ruraypaq • Qillqa q'ataw • Iglesia ruraypaq munaywan rurasqa",
         alert_nombre: "Allichu, sutita qillqay.",
         alert_edad: "Wata manan allinchu. 7-70 watapura kachun.",
+        alert_dni: "DNI 8 wata numerikus kachun.",
+        alert_telefono: "Rimanakuy 9 wata kachun, 9-manta qallariy.",
         alert_reg_ok: "✅ {categoria}pi qillqasqa\nQillqa: {codigo}",
         alert_asist_ok: "✔️ Asistencia qillqasqa\nQillqa: {codigo}\n{fecha}",
         alert_camara: "Cámara manan llamk'achkachu. Permisu kamariy.",
@@ -542,6 +551,34 @@
       }
     });
 
+    // === Validar DNI (8 dígitos numéricos) ===
+    function validarDNI(input) {
+      const dni = input.value.trim();
+      const errorDiv = document.getElementById('dni-error');
+      if (!dni || !/^\d{8}$/.test(dni)) {
+        errorDiv.innerText = translations[currentLang].alert_dni;
+        errorDiv.style.display = 'block';
+        input.style.borderColor = 'red';
+      } else {
+        errorDiv.style.display = 'none';
+        input.style.borderColor = '#ddd';
+      }
+    }
+
+    // === Validar Teléfono (9 dígitos, empieza con 9) ===
+    function validarTelefono(input) {
+      const telefono = input.value.trim();
+      const errorDiv = document.getElementById('telefono-error');
+      if (!telefono || !/^[9]\d{8}$/.test(telefono)) {
+        errorDiv.innerText = translations[currentLang].alert_telefono;
+        errorDiv.style.display = 'block';
+        input.style.borderColor = 'red';
+      } else {
+        errorDiv.style.display = 'none';
+        input.style.borderColor = '#ddd';
+      }
+    }
+
     // === Categoría según edad ===
     function obtenerCategoria(edad) {
       if (edad >= 7 && edad <= 12) return 'comunion';
@@ -659,9 +696,13 @@
           return;
         }
       }
+      const dni = document.getElementById('dni_apoderado').value.trim();
+      const telefono = document.getElementById('telefono').value.trim();
       
       if (!nombre) { alert(translations[currentLang].alert_nombre); return; }
       if (!edad || edad < 7 || edad > 70) { alert(translations[currentLang].alert_edad); return; }
+      if (!/^\d{8}$/.test(dni)) { alert(translations[currentLang].alert_dni); return; }
+      if (!/^[9]\d{8}$/.test(telefono)) { alert(translations[currentLang].alert_telefono); return; }
       
       const catKey = obtenerCategoria(edad);
       const categoria = categorias[currentLang][catKey];
@@ -673,17 +714,17 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           fotoUrl = e.target.result;
-          guardarParticipante(id, nombre, edad, categoria, catKey, fotoUrl, centro);
+          guardarParticipante(id, nombre, edad, categoria, catKey, fotoUrl, centro, dni, telefono);
         };
         reader.readAsDataURL(fotoInput.files[0]);
       } else {
         // Avatar cristiano por defecto
         fotoUrl = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIGZpbGw9IiMzYjgyZjYiIHJ4PSIxNSIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iNDAiIHI9IjI1IiBmaWxsPSIjZmZmIi8+PGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iMTUiIGZpbGw9IiMxZTNhOGEiLz48L3N2Zz4=";
-        guardarParticipante(id, nombre, edad, categoria, catKey, fotoUrl, centro);
+        guardarParticipante(id, nombre, edad, categoria, catKey, fotoUrl, centro, dni, telefono);
       }
     }
 
-    function guardarParticipante(id, nombre, edad, categoria, catKey, fotoUrl, centro) {
+    function guardarParticipante(id, nombre, edad, categoria, catKey, fotoUrl, centro, dni, telefono) {
       const nuevo = {
         id,
         nombre,
@@ -693,8 +734,8 @@
         centro: centro,
         sacramento: document.getElementById('sacramento').value || null,
         apoderado: document.getElementById('apoderado').value || null,
-        dni_apoderado: document.getElementById('dni_apoderado').value || null,
-        telefono: document.getElementById('telefono').value || null,
+        dni_apoderado: dni,
+        telefono: telefono,
         email: document.getElementById('email').value || null,
         foto: fotoUrl,
         fecha_registro: new Date().toLocaleString()
@@ -714,13 +755,16 @@
       qrPhoto.src = fotoUrl;
       
       // Generar QR con el ID
-      QRCode.toDataURL(`PAST-${id}`, { width: 150 })
-        .then(url => {
-          qrImage.src = url;
-        })
-        .catch(err => {
-          console.error("Error generating QR:", err);
+      try {
+        const qrcode = new QRCode(qrImage, {
+          text: `PAST-${id}`,
+          width: 150,
+          height: 150
         });
+      } catch (err) {
+        console.error("Error generating QR:", err);
+        qrImage.src = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiMzMGIyZjYiIHJ4PSIyMCIvPjxjaXJjbGUgY3g9Ijc1IiBjeT0iNzUiIHI9IjQwIiBmaWxsPSIjZmZmIi8+PGNpcmNsZSBjeD0iNzUiIGN5PSI3NSIgcj0iMjAiIGZpbGw9IiMxZTNhOGEiLz48L3N2Zz4=";
+      }
       
       // Limpiar
       document.getElementById('nombre').value = '';
