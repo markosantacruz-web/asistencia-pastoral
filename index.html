@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Asistencia – Parroquia Santa Teresa de Calcuta</title>
+  <title>SIST CRISTHUS Version 1.0</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
@@ -66,8 +66,8 @@
       <button class="lang-btn" data-lang="qu">QU</button>
     </div>
     <div id="header-title">
-      <h1 id="title">Asistencia – Parroquia Santa Teresa de Calcuta</h1>
-      <p id="subtitle">Sistema para catequesis y sacramentos</p>
+      <h1 id="title">SIST CRISTHUS Version 1.0</h1>
+      <p id="subtitle">Sistema para catequesis y sacramentos - Parroquia Santa Teresa de Calcuta</p>
     </div>
     <div id="user-status" class="user-info" style="display: none;">
       <span id="user-role">Rol: </span> | <button onclick="logout()" style="background: none; border: none; color: white; text-decoration: underline;">Salir</button>
@@ -97,15 +97,28 @@
     <div class="card">
       <h2 id="reg-title">Registrar Catequizando</h2>
       <input type="text" id="nombre" placeholder="Nombre completo" />
-      <input type="number" id="edad" placeholder="Edad (7 a 100)" min="7" max="100" onchange="actualizarCategoria()" />
+      <input type="number" id="edad" placeholder="Edad (7 a 70)" min="7" max="70" onchange="actualizarCategoria()" />
       <div id="categoria-auto" style="text-align: center; margin: 8px 0; font-weight: bold;"></div>
-      <input type="text" id="centro" placeholder="Centro educativo o parroquia" />
+      <select id="centro">
+        <option value="" id="centro-placeholder">Institución Educativa</option>
+        <option value="San Jose de Calasanz">San Jose de Calasanz</option>
+        <option value="IE Dean Valdivia">IE Dean Valdivia</option>
+        <option value="Trinidad Moran">Trinidad Moran</option>
+        <option value="Mendel">Mendel</option>
+        <option value="IE Pioneros">IE Pioneros</option>
+        <option value="Jhon Lake">Jhon Lake</option>
+        <option value="Magistral">Magistral</option>
+        <option value="Maxxwell">Maxxwell</option>
+        <option value="León XIII">León XIII</option>
+        <option value="otros">Otros</option>
+      </select>
+      <input type="text" id="centro-otros" placeholder="Especifique la institución" style="display: none;" />
       <select id="sacramento">
         <option value="" id="sacramento-placeholder">Condición sacramental</option>
-        <option value="Bautizado" id="sac-baut">Bautizado</option>
-        <option value="Eucaristía" id="sac-euc">Eucaristía</option>
-        <option value="Confirmado" id="sac-conf">Confirmado</option>
-        <option value="No bautizado" id="sac-no-baut">No bautizado</option>
+        <option value="Bautizado">Bautizado</option>
+        <option value="Eucaristía">Eucaristía</option>
+        <option value="Confirmado">Confirmado</option>
+        <option value="No bautizado">No bautizado</option>
       </select>
       <input type="text" id="apoderado" placeholder="Nombre del apoderado o padre/madre" />
       <input type="text" id="dni_apoderado" placeholder="DNI del apoderado (opcional)" />
@@ -182,20 +195,32 @@
   </footer>
 
   <script>
-    // === TRADUCCIONES ===
+    // === TRADUCCIONES COMPLETAS ===
     const translations = {
       es: {
-        title: "Asistencia – Parroquia Santa Teresa de Calcuta",
-        subtitle: "Sistema para catequesis y sacramentos",
+        title: "SIST CRISTHUS Version 1.0",
+        subtitle: "Sistema para catequesis y sacramentos - Parroquia Santa Teresa de Calcuta",
         tab_registro: "📝 Registro",
         tab_asistencia: "📱 Asistencia",
         tab_reportes: "📊 Reportes",
         tab_eventos: "📅 Eventos",
         reg_title: "Registrar Catequizando",
         nombre_ph: "Nombre completo",
-        edad_ph: "Edad (7 a 100)",
-        centro_ph: "Centro educativo o parroquia",
-        sacramento_ph: "Condición sacramental",
+        edad_ph: "Edad (7 a 70)",
+        centro_placeholder: "Institución Educativa",
+        centro_opciones: [
+          "San Jose de Calasanz",
+          "IE Dean Valdivia",
+          "Trinidad Moran",
+          "Mendel",
+          "IE Pioneros",
+          "Jhon Lake",
+          "Magistral",
+          "Maxxwell",
+          "León XIII",
+          "Otros"
+        ],
+        sacramento_placeholder: "Condición sacramental",
         sac_baut: "Bautizado",
         sac_euc: "Eucaristía",
         sac_conf: "Confirmado",
@@ -217,13 +242,13 @@
         privacy_note: "<strong>🔒 Privacidad:</strong> Los datos se usan solo para fines pastorales. Se guardan en este dispositivo y no se comparten con nadie.",
         footer: "Sistema gratuito para uso pastoral • Código abierto • Desarrollado con amor al servicio de la Iglesia",
         alert_nombre: "Por favor, ingresa el nombre.",
-        alert_edad: "Edad inválida. Debe ser entre 7 y 100 años.",
+        alert_edad: "Edad inválida. Debe ser entre 7 y 70 años.",
         alert_reg_ok: "✅ Registrado en: {categoria}\nCódigo: {codigo}",
         alert_asist_ok: "✔️ Asistencia registrada\nCódigo: {codigo}\n{fecha}",
         alert_camara: "No se pudo acceder a la cámara. Verifica permisos.",
         report_total: "Total: {count} asistencias",
         no_asistencias: "No hay registros de asistencia aún.",
-        whatsapp_msg: "✅ *Reporte de Asistencia*\n\nParroquia: {parroquia}\nTotal de asistencias: {count}\n\nGenerado desde AsistenciaPastoral (sistema gratuito para parroquias)",
+        whatsapp_msg: "✅ *Reporte de Asistencia*\n\nParroquia: Santa Teresa de Calcuta\nTotal de asistencias: {count}\n\nGenerado desde SIST CRISTHUS (sistema gratuito para parroquias)",
         login_title: "Iniciar Sesión",
         username_ph: "Usuario",
         password_ph: "Contraseña",
@@ -237,20 +262,33 @@
         event_date_ph: "Fecha",
         btn_create_event: "➕ Crear Evento",
         events_list: "Eventos especiales:",
-        event_created: "Evento creado con éxito."
+        event_created: "Evento creado con éxito.",
+        centro_otros_ph: "Especifique la institución"
       },
       en: {
-        title: "Attendance – St. Teresa of Calcutta Parish",
-        subtitle: "System for catechesis and sacraments",
+        title: "SIST CRISTHUS Version 1.0",
+        subtitle: "System for catechesis and sacraments - St. Teresa of Calcuta Parish",
         tab_registro: "📝 Registration",
         tab_asistencia: "📱 Attendance",
         tab_reportes: "📊 Reports",
         tab_eventos: "📅 Events",
         reg_title: "Register Catechumen",
         nombre_ph: "Full name",
-        edad_ph: "Age (7 to 100)",
-        centro_ph: "School or parish",
-        sacramento_ph: "Sacramental status",
+        edad_ph: "Age (7 to 70)",
+        centro_placeholder: "Educational Institution",
+        centro_opciones: [
+          "San Jose de Calasanz",
+          "IE Dean Valdivia",
+          "Trinidad Moran",
+          "Mendel",
+          "IE Pioneros",
+          "Jhon Lake",
+          "Magistral",
+          "Maxxwell",
+          "León XIII",
+          "Others"
+        ],
+        sacramento_placeholder: "Sacramental status",
         sac_baut: "Baptized",
         sac_euc: "Eucharist",
         sac_conf: "Confirmed",
@@ -272,13 +310,13 @@
         privacy_note: "<strong>🔒 Privacy:</strong> Data is used only for pastoral purposes. It is stored on this device and not shared with anyone.",
         footer: "Free system for pastoral use • Open source • Developed with love to serve the Church",
         alert_nombre: "Please enter the name.",
-        alert_edad: "Invalid age. Must be between 7 and 100 years.",
+        alert_edad: "Invalid age. Must be between 7 and 70 years.",
         alert_reg_ok: "✅ Registered in: {categoria}\nCode: {codigo}",
         alert_asist_ok: "✔️ Attendance recorded\nCode: {codigo}\n{fecha}",
         alert_camara: "Could not access camera. Check permissions.",
         report_total: "Total: {count} attendances",
         no_asistencias: "No attendance records yet.",
-        whatsapp_msg: "✅ *Attendance Report*\n\nParish: {parroquia}\nTotal attendances: {count}\n\nGenerated from AsistenciaPastoral (free system for parishes)",
+        whatsapp_msg: "✅ *Attendance Report*\n\nParish: St. Teresa of Calcuta\nTotal attendances: {count}\n\nGenerated from SIST CRISTHUS (free system for parishes)",
         login_title: "Login",
         username_ph: "Username",
         password_ph: "Password",
@@ -292,20 +330,33 @@
         event_date_ph: "Date",
         btn_create_event: "➕ Create Event",
         events_list: "Special events:",
-        event_created: "Event created successfully."
+        event_created: "Event created successfully.",
+        centro_otros_ph: "Specify institution"
       },
       qu: {
-        title: "Asistencia – Santa Teresa de Calcuta Parroquia",
-        subtitle: "Katekistaqtaqwan sakramentoktaqwan ruraypaq sistema",
+        title: "SIST CRISTHUS Version 1.0",
+        subtitle: "Katekistaqtaqwan sakramentoktaqwan ruraypaq sistema - Santa Teresa de Calcuta Parroquia",
         tab_registro: "📝 Willayta qillqay",
         tab_asistencia: "📱 Asistencia qillqay",
         tab_reportes: "📊 Willaykuna",
         tab_eventos: "📅 Eventos",
         reg_title: "Katekista qillqay",
         nombre_ph: "Suti sutichay",
-        edad_ph: "Wata (7-100)",
-        centro_ph: "Yachay wasi icha parroquia",
-        sacramento_ph: "Sakramento kachun",
+        edad_ph: "Wata (7-70)",
+        centro_placeholder: "Yachay wasi",
+        centro_opciones: [
+          "San Jose de Calasanz",
+          "IE Dean Valdivia",
+          "Trinidad Moran",
+          "Mendel",
+          "IE Pioneros",
+          "Jhon Lake",
+          "Magistral",
+          "Maxxwell",
+          "León XIII",
+          "Hukkuna"
+        ],
+        sacramento_placeholder: "Sakramento kachun",
         sac_baut: "Bautizadu",
         sac_euc: "Eukaristía",
         sac_conf: "Confirmadu",
@@ -327,13 +378,13 @@
         privacy_note: "<strong>🔒 Privacidad:</strong> Kunan willaykuna katekista ruraypaqlla. Kunan qillqata kay qillqatapi qillqasqa, mana pipaswan rurasqa.",
         footer: "Mana qullqiyuq ruray katekista ruraypaq • Qillqa q'ataw • Iglesia ruraypaq munaywan rurasqa",
         alert_nombre: "Allichu, sutita qillqay.",
-        alert_edad: "Wata manan allinchu. 7-100 watapura kachun.",
+        alert_edad: "Wata manan allinchu. 7-70 watapura kachun.",
         alert_reg_ok: "✅ {categoria}pi qillqasqa\nQillqa: {codigo}",
         alert_asist_ok: "✔️ Asistencia qillqasqa\nQillqa: {codigo}\n{fecha}",
         alert_camara: "Cámara manan llamk'achkachu. Permisu kamariy.",
         report_total: "Hunt'a: {count} asistencias",
         no_asistencias: "Asistencia willay manam kanchu.",
-        whatsapp_msg: "✅ *Asistencia Willay*\n\nParroquia: {parroquia}\nHunt'a asistencias: {count}\n\nAsistenciaPastoral-manta (parrokiakunapaq mana qullqiyuq sistema)",
+        whatsapp_msg: "✅ *Asistencia Willay*\n\nParroquia: Santa Teresa de Calcuta\nHunt'a asistencias: {count}\n\nSIST CRISTHUS-manta (parrokiakunapaq mana qullqiyuq sistema)",
         login_title: "Qallariy",
         username_ph: "Usuario",
         password_ph: "Chawpi",
@@ -347,7 +398,8 @@
         event_date_ph: "Pacha",
         btn_create_event: "➕ Eventon ruray",
         events_list: "Kawsaykuna:",
-        event_created: "Eventon rurashqa."
+        event_created: "Eventon rurashqa.",
+        centro_otros_ph: "Yachay wasita sutichay"
       }
     };
 
@@ -378,7 +430,7 @@
     let usuarioActual = null;
     let html5QrCode = null;
 
-    // === Traducir interfaz ===
+    // === Traducir interfaz COMPLETA ===
     function translate(lang) {
       currentLang = lang;
       
@@ -392,8 +444,8 @@
       document.getElementById('reg-title').innerText = translations[lang].reg_title;
       document.getElementById('nombre').placeholder = translations[lang].nombre_ph;
       document.getElementById('edad').placeholder = translations[lang].edad_ph;
-      document.getElementById('centro').placeholder = translations[lang].centro_ph;
-      document.getElementById('sacramento-placeholder').innerText = translations[lang].sacramento_ph;
+      document.getElementById('centro-placeholder').innerText = translations[lang].centro_placeholder;
+      document.getElementById('sacramento-placeholder').innerText = translations[lang].sacramento_placeholder;
       document.getElementById('sac-baut').innerText = translations[lang].sac_baut;
       document.getElementById('sac-euc').innerText = translations[lang].sac_euc;
       document.getElementById('sac-conf').innerText = translations[lang].sac_conf;
@@ -424,6 +476,23 @@
       document.getElementById('event-date').placeholder = translations[lang].event_date_ph;
       document.getElementById('btn-create-event').innerText = translations[lang].btn_create_event;
       document.getElementById('event-selector-title').innerText = translations[lang].event_selector_title;
+      document.getElementById('centro-otros').placeholder = translations[lang].centro_otros_ph;
+      
+      // Actualizar opciones de institución educativa
+      const centroSelect = document.getElementById('centro');
+      centroSelect.innerHTML = '';
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.id = 'centro-placeholder';
+      placeholder.innerText = translations[lang].centro_placeholder;
+      centroSelect.appendChild(placeholder);
+      
+      translations[lang].centro_opciones.forEach((opcion, index) => {
+        const option = document.createElement('option');
+        option.value = index === 9 ? 'otros' : opcion;
+        option.innerText = opcion;
+        centroSelect.appendChild(option);
+      });
       
       // Actualizar botones de idioma
       document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -462,18 +531,29 @@
       });
     });
 
+    // === Manejar "Otros" en institución ===
+    document.getElementById('centro').addEventListener('change', function() {
+      const otrosInput = document.getElementById('centro-otros');
+      if (this.value === 'otros') {
+        otrosInput.style.display = 'block';
+      } else {
+        otrosInput.style.display = 'none';
+        otrosInput.value = '';
+      }
+    });
+
     // === Categoría según edad ===
     function obtenerCategoria(edad) {
       if (edad >= 7 && edad <= 12) return 'comunion';
       if (edad >= 13 && edad <= 17) return 'confirm_jov';
-      if (edad >= 18) return 'confirm_adu';
+      if (edad >= 18 && edad <= 70) return 'confirm_adu';
       return null;
     }
 
     function actualizarCategoria() {
       const edad = parseInt(document.getElementById('edad').value);
       const contenedor = document.getElementById('categoria-auto');
-      if (edad >= 7 && edad <= 100) {
+      if (edad >= 7 && edad <= 70) {
         const catKey = obtenerCategoria(edad);
         if (catKey) {
           const catName = categorias[currentLang][catKey];
@@ -570,9 +650,18 @@
     function registrar() {
       const nombre = document.getElementById('nombre').value.trim();
       const edad = parseInt(document.getElementById('edad').value);
+      const centroSelect = document.getElementById('centro');
+      let centro = centroSelect.value;
+      if (centro === 'otros') {
+        centro = document.getElementById('centro-otros').value.trim();
+        if (!centro) {
+          alert("Por favor, especifique la institución educativa.");
+          return;
+        }
+      }
       
       if (!nombre) { alert(translations[currentLang].alert_nombre); return; }
-      if (!edad || edad < 7 || edad > 100) { alert(translations[currentLang].alert_edad); return; }
+      if (!edad || edad < 7 || edad > 70) { alert(translations[currentLang].alert_edad); return; }
       
       const catKey = obtenerCategoria(edad);
       const categoria = categorias[currentLang][catKey];
@@ -584,24 +673,24 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           fotoUrl = e.target.result;
-          guardarParticipante(id, nombre, edad, categoria, catKey, fotoUrl);
+          guardarParticipante(id, nombre, edad, categoria, catKey, fotoUrl, centro);
         };
         reader.readAsDataURL(fotoInput.files[0]);
       } else {
-        // Avatar por defecto
+        // Avatar cristiano por defecto
         fotoUrl = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj48cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iODAiIGZpbGw9IiMzYjgyZjYiIHJ4PSIxNSIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iNDAiIHI9IjI1IiBmaWxsPSIjZmZmIi8+PGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iMTUiIGZpbGw9IiMxZTNhOGEiLz48L3N2Zz4=";
-        guardarParticipante(id, nombre, edad, categoria, catKey, fotoUrl);
+        guardarParticipante(id, nombre, edad, categoria, catKey, fotoUrl, centro);
       }
     }
 
-    function guardarParticipante(id, nombre, edad, categoria, catKey, fotoUrl) {
+    function guardarParticipante(id, nombre, edad, categoria, catKey, fotoUrl, centro) {
       const nuevo = {
         id,
         nombre,
         edad,
         categoria_key: catKey,
         categoria: categoria,
-        centro: document.getElementById('centro').value || null,
+        centro: centro,
         sacramento: document.getElementById('sacramento').value || null,
         apoderado: document.getElementById('apoderado').value || null,
         dni_apoderado: document.getElementById('dni_apoderado').value || null,
@@ -637,6 +726,8 @@
       document.getElementById('nombre').value = '';
       document.getElementById('edad').value = '';
       document.getElementById('centro').value = '';
+      document.getElementById('centro-otros').value = '';
+      document.getElementById('centro-otros').style.display = 'none';
       document.getElementById('sacramento').value = '';
       document.getElementById('apoderado').value = '';
       document.getElementById('dni_apoderado').value = '';
@@ -673,7 +764,7 @@
         </head>
         <body>
           <div class="card">
-            <div class="parish">Parroquia Santa Teresa de Calcuta</div>
+            <div class="parish">SIST CRISTHUS - Parroquia Santa Teresa de Calcuta</div>
             <img class="photo" src="${foto}" alt="Foto" />
             <div class="name">${nombre}</div>
             <img class="qr" src="${qr}" alt="QR Code" />
@@ -787,8 +878,7 @@
       doc.setFontSize(18);
       doc.text(currentLang === 'qu' ? 'Asistencia Willay' : (currentLang === 'en' ? 'Attendance Report' : 'Reporte de Asistencia'), 20, 20);
       doc.setFontSize(12);
-      const parishName = translations[currentLang].title.split(' – ')[1] || 'Parroquia';
-      doc.text(parishName, 20, 28);
+      doc.text("SIST CRISTHUS - Parroquia Santa Teresa de Calcuta", 20, 28);
       doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 20, 36);
       doc.text(`Total: ${asistencias.length}`, 20, 44);
       
@@ -824,7 +914,7 @@
         y += 6;
       });
       
-      doc.save(`asistencia-${parishName.replace(/\s+/g, '-')}.pdf`);
+      doc.save(`asistencia-sist-cristhus.pdf`);
     }
 
     function enviarWhatsApp() {
@@ -833,9 +923,7 @@
         return;
       }
       
-      const parishName = translations[currentLang].title.split(' – ')[1] || 'Parroquia';
       const texto = translations[currentLang].whatsapp_msg
-        .replace('{parroquia}', parishName)
         .replace('{count}', asistencias.length);
       const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
       window.open(url, '_blank');
